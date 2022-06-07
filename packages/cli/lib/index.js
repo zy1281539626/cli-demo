@@ -2,14 +2,13 @@
 
 const program = require('commander')
 
-function create(){
-  // 创建
+function registerCommand(){
+  // 创建项目
   program
     .command('create [name]')
     .description('create a new project')
     .option('-f, --force', 'overwrite target directory if it exist')
     .action((name, options) => {
-      console.log('name:',name)
       require('./create.js')(name, options)
     })
   
@@ -22,7 +21,7 @@ function create(){
 }
 
 function index() {
-  create()
+  registerCommand()
 }
 
 module.exports = index;

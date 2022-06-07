@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { GIT_BASE, GIT_TYPE, GIT_NAME } = require('./constant');
 
 axios.interceptors.response.use(res=>{
   return res.data
@@ -6,15 +7,12 @@ axios.interceptors.response.use(res=>{
 
 // 获取模板列表
 function getRepoList(){
-  // return axios.get('https://api.github.com/orgs/vuejs/repos')
-  return axios.get('https://api.github.com/users/zy1281539626/repos')
+  return axios.get(`${GIT_BASE}/${GIT_TYPE}/${GIT_NAME}/repos`)
 }
 
 // 获取版本列表
 function getTagList(repo){
-  // return axios.get(`https://api.github.com/repos/vuejs/${repo}/tags`)
-  // return axios.get(`https://api.github.com/repos/zy1281539626/${repo}/tags`)
-  return new Promise(resolve=>{resolve([])})
+  return axios.get(`${GIT_BASE}/repos/${GIT_NAME}/${repo}/tags`)
 }
 
 module.exports = {

@@ -1,7 +1,11 @@
 'use strict';
 
 const http = require('./http');
+const constant = require('./constant')
+const log = require('./log');
 
 module.exports = {
-    http
+  http,
+  constant,
+  log
 };
