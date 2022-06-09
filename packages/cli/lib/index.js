@@ -1,26 +1,39 @@
-'use strict';
-
 const program = require('commander')
+const requiredVersion = require('../package.json').engines.node
+const { semver, chalk } = require('utils')
+
+function checkNodeVersion (wanted, id) {
+  if (!semver.satisfies(process.version, wanted, { includePrerelease: true })) {
+    console.log(chalk.red(
+      'You are using Node ' + process.version + ', but this version of ' + id +
+      ' requires Node ' + wanted + '.\nPlease upgrade your Node version.'
+    ))
+    process.exit(1)
+  }
+}
 
 function registerCommand(){
   // 创建项目
   program
     .command('create [name]')
-    .description('create a new project')
+    .description('create a new project powered by cli')
     .option('-f, --force', 'overwrite target directory if it exist')
+    .option('-p, --proxy <proxyUrl>', 'Use specified proxy when creating project')
+    .option('-m, --packageManager <command>', 'Use specified npm client when installing dependencies')
     .action((name, options) => {
       require('./create.js')(name, options)
     })
   
   // 获取版本号
   program
-    .version(`v${require('../package.json').version}`)
+    .version(`${require('../package.json').name} v${require('../package.json').version}`)
     .usage('<command> [option]')
 
   program.parse(process.argv);
 }
 
 function index() {
+  checkNodeVersion(requiredVersion, 'cli')
   registerCommand()
 }
 

@@ -1,18 +1,21 @@
 const path = require('path');
 const fs = require('fs-extra');
 const inquirer = require('inquirer');
-const chalk = require('chalk')
 const validateProjectName = require('validate-npm-package-name')
 const generator = require('./generator');
-const { log } = require("utils");
+const { chalk, clearConsole } = require("utils");
 
 /**
  * 创建项目
  * @param {*} name 项目名称
- * @param {*} options 选项 --force -f 强制覆盖
+ * @param {*} options 选项
  * @returns 
  */
 module.exports = async function(name, options) {
+  if (options.proxy) {
+    process.env.HTTP_PROXY = options.proxy
+  }
+
   const cwd = process.cwd();
   const targetDir = path.join(cwd, name)
   const checkName = validateProjectName(name)
@@ -28,10 +31,11 @@ module.exports = async function(name, options) {
   }
   
   const cliVersion = require('../package.json').version
-  await log.clearConsole(chalk.bold.blue(`CLI v${cliVersion}`))
+  await clearConsole(chalk.bold.blue(`CLI v${cliVersion}`))
 
   if(fs.existsSync(targetDir)){
     if(options.force) {
+      console.log(`\nRemoving ${chalk.cyan(targetDir)}...`)
       await fs.remove(targetDir)
     }else{
       const params = [{
@@ -54,7 +58,7 @@ module.exports = async function(name, options) {
     }
   }
   
-  await generator(targetDir)
+  await generator(options, targetDir)
   console.log(`\r\n🎉  Successfully created project ${chalk.yellow(name)}.`)
   console.log(
     `👉  Get started with the following commands:\n\n` +

@@ -5,7 +5,7 @@
   "author": "张营 <zy_carl@formssi.com>",
   "homepage": "",
   "license": "ISC",
-  "main": "lib/index.js",
+  "main": "index.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -18,6 +18,11 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "readline": "^1.3.0"
+    "ora": "^5.4.1",
+    "chalk": "^4.1.2",
+    "execa": "^5.1.1",
+    "readline": "^1.3.0",
+    "semver": "^7.3.7",
+    "node-fetch": "^2.6.7"
   }
 }
