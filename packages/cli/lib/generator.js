@@ -8,14 +8,37 @@ const {
   failSpinner,
   chalk,
   execa,
+  hasProjectNpm,
   hasYarn,
+  hasProjectYarn,
   hasPnpm3OrLater,
+  hasProjectPnpm,
+  hasGit, 
+  hasProjectGit,
   getRepoList,
   getTagList,
   GIT_NAME,
 } = require("utils");
 
-// 获取用户选择的模板
+
+const shouldInitGit = cliOptions => {
+  if (!hasGit()) {
+    return false
+  }
+  // --git
+  if (cliOptions.forceGit) {
+    return true
+  }
+  // --no-git
+  if (cliOptions.git === false || cliOptions.git === 'false') {
+    return false
+  }
+  // default: true unless already in a git repo
+  return !hasProjectGit(this.context)
+}
+
+
+// 获取并选择模板
 async function getRepo() {
   logWithSpinner(`Fetching template...`);
   const repoList = await getRepoList();
@@ -26,7 +49,7 @@ async function getRepo() {
     name: "repo",
     type: "list",
     choices: repos,
-    message: "Please choose a template to create project",
+    message: " Please choose a template to create project",
   });
   return repo;
 }
@@ -42,7 +65,7 @@ async function getTag(repo) {
     name: "tag",
     type: "list",
     choices: tagsList,
-    message: "Place choose a tag to create project",
+    message: " Place choose a tag to create project",
   });
   return tag;
 }
@@ -56,11 +79,11 @@ async function download(repo, tag, targetDir) {
       requestUrl,
       path.resolve(process.cwd(), targetDir),
       {
-        // proxy: "http://127.0.0.1:7890",
+        proxy: process.env.HTTP_PROXY || '',
       },
       (err) => {
         if (err) {
-          failSpinner("Downloading failed: \n" + err.message);
+          failSpinner(" Downloading failed: \n" + err.message);
           reject(err);
         } else {
           resolve(true);
@@ -75,6 +98,22 @@ async function download(repo, tag, targetDir) {
 // 安装依赖
 async function install(cwd, pm) {
   logWithSpinner(`Installing dependencies...`);
+
+  let packageManager;
+  if (pm) {
+    packageManager = pm
+  } else if (cwd) {
+    if (hasProjectYarn(cwd)) {
+      packageManager = 'yarn'
+    } else if (hasProjectPnpm(cwd)) {
+      packageManager = 'pnpm'
+    } else if (hasProjectNpm(cwd)) {
+      packageManager = 'npm'
+    } else {
+      packageManager = (hasYarn() ? "yarn" : null) || (hasPnpm3OrLater() ? "pnpm" : "npm");
+    }
+  }
+
   let installRes = await new Promise(async (resolve, reject) => {
     try {
       await execa(pm || "npm", ["install", "--loglevel", "error"], { cwd });
@@ -96,11 +135,14 @@ async function generator(projectName, cliOptions, targetDir) {
     const tag = await getTag(repo);
     const dres = await download(repo, tag, targetDir);
     if (dres === true) {
-      const packageManager =
-        cliOptions.packageManager ||
-        (hasYarn() ? "yarn" : null) ||
-        (hasPnpm3OrLater() ? "pnpm" : "npm");
-      await install(targetDir, packageManager);
+      // 初始化git
+      if (shouldInitGit(cliOptions)) {
+        logWithSpinner(`Initializing git repository...`)
+        await execa('git init', [], { cwd: targetDir })
+        stopSpinner();
+      }
+
+      await install(targetDir, cliOptions.packageManager);
 
       console.log(
         `\r\n🎉  Successfully created project ${chalk.yellow(projectName)}.`

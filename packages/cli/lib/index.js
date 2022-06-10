@@ -20,9 +20,19 @@ function registerCommand(){
     .option('-f, --force', 'overwrite target directory if it exist')
     .option('-p, --proxy <proxyUrl>', 'Use specified proxy when creating project')
     .option('-m, --packageManager <command>', 'Use specified npm client when installing dependencies')
+    .option('-g, --git', 'Force git initialization')
+    .option('-n, --no-git', 'Skip git initialization')
     .action((name, options) => {
+      // --git makes commander to default git to true
+      if (process.argv.includes('-g') || process.argv.includes('--git')) {
+        options.forceGit = true
+      }
       require('./create.js')(name, options)
     })
+  
+  program.command('test').action(()=> {
+    require('./test.js')()
+  })
   
   // 获取版本号
   program
