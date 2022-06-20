@@ -11,11 +11,7 @@ if(process.env.HTTP_PROXY){
     axios.default.proxy = {
       protocol: tmp[0],
       host: tmp[1].split(':')[0],
-      port: tmp[1].split(':')[1],
-      // auth: {
-      //   username: '',
-      //   password: ''
-      // }
+      port: tmp[1].split(':')[1]
     }
   }
 }

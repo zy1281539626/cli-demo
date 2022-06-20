@@ -1,12 +1,12 @@
 {
-  "name": "cli",
+  "name": "create-toimc-app",
   "version": "1.0.0",
-  "description": "cli demo",
-  "author": "张营 <zy_carl@formssi.com>",
+  "description": "create-toimc-app cli",
+  "author": "白叶 <1511455676@qq.com>",
   "homepage": "",
   "license": "ISC",
   "bin": {
-    "cli": "bin/index.js"
+    "create-toimc-app": "bin/index.js"
   },
   "directories": {
     "lib": "lib",
